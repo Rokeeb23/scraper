@@ -1,14 +1,13 @@
 """
 49's Lottery Scraper - JSON-LD Method with Duplicate Removal
+Optimized for Render.com Docker environment
 """
 
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 import json
@@ -26,9 +25,9 @@ class Lottery49sScraper:
         self.driver = None
         
     def start(self):
-        """Start the browser"""
-        service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service, options=self.options)
+        """Start the browser - Chrome is already installed in Docker"""
+        # No Service or webdriver_manager needed!
+        self.driver = webdriver.Chrome(options=self.options)
         return self
     
     def close(self):
@@ -77,7 +76,7 @@ class Lottery49sScraper:
         """Extract lottery draws from JSON-LD structured data and remove duplicates"""
         soup = BeautifulSoup(html_content, 'html.parser')
         draws = []
-        seen_draws = set()  # Track unique draws
+        seen_draws = set()
         
         scripts = soup.find_all('script', type='application/ld+json')
         
@@ -89,15 +88,12 @@ class Lottery49sScraper:
                     'resultNumbers' in data and 
                     'Draw Results' in data.get('name', '')):
                     
-                    # Create a unique key for this draw
                     draw_name = data['name'].replace(' Draw Results', '').strip()
                     numbers_tuple = tuple(data['resultNumbers'])
                     bonus_value = data['bonusNumbers'][0] if data.get('bonusNumbers') else None
                     
-                    # Create unique identifier
                     unique_key = f"{draw_name}_{numbers_tuple}_{bonus_value}"
                     
-                    # Only add if we haven't seen this draw before
                     if unique_key not in seen_draws:
                         seen_draws.add(unique_key)
                         
@@ -167,7 +163,6 @@ class Lottery49sScraper:
         print(f"URL: {api_url}")
         print(f"{'='*60}\n")
         
-        # Prepare the data to send (already deduplicated)
         payload = {
             'date': results['date'],
             'draws': results['draws'],
@@ -179,7 +174,6 @@ class Lottery49sScraper:
         print(f"📦 Payload size: {len(json.dumps(payload))} bytes")
         print(f"🎯 Number of draws: {results['total_draws']}")
         
-        # Display what's being sent
         for draw in results['draws']:
             print(f"   - {draw['draw_name']}: {draw['numbers']} (Bonus: {draw.get('bonus', 'N/A')})")
         
@@ -203,15 +197,8 @@ class Lottery49sScraper:
                 return True
             else:
                 print(f"❌ Failed to send data. Status code: {response.status_code}")
-                print(f"Response: {response.text}")
                 return False
                 
-        except requests.exceptions.ConnectionError:
-            print("❌ Connection error: Could not reach the server")
-            return False
-        except requests.exceptions.Timeout:
-            print("❌ Timeout error: Server did not respond in time")
-            return False
         except Exception as e:
             print(f"❌ Error sending data: {e}")
             return False
