@@ -8,8 +8,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import time
 import json
@@ -29,9 +27,8 @@ class Lottery49sScraper:
         self.driver = None
         
     def start(self):
-        """Start the browser using webdriver-manager (automatically matches Chrome version)"""
-        service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service, options=self.options)
+        """Start the browser - ChromeDriver is pre-installed in Docker"""
+        self.driver = webdriver.Chrome(options=self.options)
         return self
     
     def close(self):
