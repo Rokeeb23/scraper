@@ -1,16 +1,27 @@
-FROM selenium/standalone-chrome:latest
+FROM python:3.11-slim
 
-USER root
+# Install Chrome and ChromeDriver
 RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    libxml2-dev \
-    libxslt1-dev \
+    wget \
+    gnupg \
+    unzip \
+    curl \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
+
+# Install ChromeDriver
+RUN wget -q https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/123.0.6312.122/linux64/chromedriver-linux64.zip \
+    && unzip chromedriver-linux64.zip \
+    && mv chromedriver-linux64/chromedriver /usr/local/bin/ \
+    && chmod +x /usr/local/bin/chromedriver \
+    && rm -rf chromedriver-linux64*
 
 WORKDIR /app
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 COPY scraper2.py .
 
-CMD ["python3", "scraper2.py"]
+CMD ["python", "scraper2.py"]
