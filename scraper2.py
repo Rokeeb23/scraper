@@ -16,18 +16,23 @@ from datetime import datetime
 
 class Lottery49sScraper:
     def __init__(self, headless=True):
+        self.headless = headless
         self.options = Options()
         if headless:
             self.options.add_argument('--headless')
         self.options.add_argument('--no-sandbox')
         self.options.add_argument('--disable-dev-shm-usage')
+        self.options.add_argument('--disable-gpu')
         self.options.add_argument('--window-size=1920,1080')
         self.driver = None
         
     def start(self):
-        """Start the browser - Chrome is already installed in Docker"""
-        # No Service or webdriver_manager needed!
-        self.driver = webdriver.Chrome(options=self.options)
+        """Start the browser using webdriver-manager"""
+        from webdriver_manager.chrome import ChromeDriverManager
+        from selenium.webdriver.chrome.service import Service
+        
+        service = Service(ChromeDriverManager().install())
+        self.driver = webdriver.Chrome(service=service, options=self.options)
         return self
     
     def close(self):
@@ -197,8 +202,15 @@ class Lottery49sScraper:
                 return True
             else:
                 print(f"❌ Failed to send data. Status code: {response.status_code}")
+                print(f"Response: {response.text}")
                 return False
                 
+        except requests.exceptions.ConnectionError:
+            print("❌ Connection error: Could not reach the server")
+            return False
+        except requests.exceptions.Timeout:
+            print("❌ Timeout error: Server did not respond in time")
+            return False
         except Exception as e:
             print(f"❌ Error sending data: {e}")
             return False
