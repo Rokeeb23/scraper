@@ -1,0 +1,52 @@
+services:
+  - type: cron
+    name: lottery-brunchtime
+    schedule: "54 11 * * *"
+    buildCommand: |
+      apt-get update
+      apt-get install -y wget gnupg
+      wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+      echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+      apt-get update
+      apt-get install -y google-chrome-stable
+      pip install -r requirements.txt
+    startCommand: python scraper2.py
+
+  - type: cron
+    name: lottery-lunchtime
+    schedule: "54 12 * * *"
+    buildCommand: |
+      apt-get update
+      apt-get install -y wget gnupg
+      wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+      echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+      apt-get update
+      apt-get install -y google-chrome-stable
+      pip install -r requirements.txt
+    startCommand: python scraper2.py
+
+  - type: cron
+    name: lottery-drivetime
+    schedule: "54 16 * * *"
+    buildCommand: |
+      apt-get update
+      apt-get install -y wget gnupg
+      wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+      echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+      apt-get update
+      apt-get install -y google-chrome-stable
+      pip install -r requirements.txt
+    startCommand: python scraper2.py
+
+  - type: cron
+    name: lottery-teatime
+    schedule: "54 17 * * *"
+    buildCommand: |
+      apt-get update
+      apt-get install -y wget gnupg
+      wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+      echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+      apt-get update
+      apt-get install -y google-chrome-stable
+      pip install -r requirements.txt
+    startCommand: python scraper2.py
