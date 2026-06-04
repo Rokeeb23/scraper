@@ -211,16 +211,6 @@ class Lottery49sScraper:
             print(f"❌ Error sending data: {e}")
             return False
     
-    def save_to_json(self, results):
-        """Save local backup"""
-        filename = f"49s_{results['date']}.json"
-        
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(results, f, indent=2, ensure_ascii=False)
-        
-        print(f"\n💾 Local backup saved to: {filename}")
-        return filename
-    
     def print_results(self, results):
         """Pretty print the results"""
         print("\n" + "="*60)
@@ -274,8 +264,7 @@ def main():
         
         if results['draws']:
             scraper.print_results(results)
-            scraper.save_to_json(results)
-            
+
             print("\n📤 STEP 2: Sending to API...")
             success = scraper.send_to_api(results)
             
