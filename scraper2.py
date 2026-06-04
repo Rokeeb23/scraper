@@ -243,7 +243,28 @@ def main():
     print("="*60)
     print("49's LOTTERY SCRAPER - with Duplicate Removal")
     print("="*60)
-    
+
+    # --- Pre-check: ask PHP which draws are missing ---
+    CHECK_URL = "https://uk49s.online/get_results.php?action=check"
+    try:
+        resp  = requests.get(CHECK_URL, timeout=10)
+        check = resp.json()
+        print(f"\n🕐 UK Time  : {check['uk_time']}")
+        print(f"📋 Expected : {check['expected']}")
+        print(f"❓ Missing  : {check['missing']}")
+
+        if not check['should_scrape']:
+            print("\n✅ All expected draws already in DB. Nothing to scrape.")
+            print("="*60)
+            return
+
+        print(f"\n⚠️  Missing draws: {check['missing']} — launching scraper...")
+
+    except Exception as e:
+        print(f"\n⚠️  Pre-check failed ({e}), proceeding with scrape anyway...")
+    # --- End pre-check ---
+
+    # Everything below is the original untouched logic
     scraper = Lottery49sScraper(headless=True)
     scraper.start()
     
